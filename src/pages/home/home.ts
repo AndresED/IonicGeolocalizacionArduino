@@ -20,6 +20,7 @@ export class HomePage {
 
   ionViewDidLoad(){
     this.loadMap();
+    this.startNavigating();
   }
 
   loadMap(){
@@ -31,7 +32,7 @@ export class HomePage {
       let mapOptions = {
         center: latLng,
         zoom: 15,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+         mapTypeId: google.maps.MapTypeId.ROADMAP
       }
 
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
@@ -68,20 +69,27 @@ export class HomePage {
   }
   startNavigating(){
 
-        let directionsService = new google.maps.DirectionsService;
-        let directionsDisplay = new google.maps.DirectionsRenderer;
+        let directionsService = new google.maps.DirectionsService; //RUTAS
+        let directionsDisplay = new google.maps.DirectionsRenderer; // RENDERIZAR RUTAS
 
         directionsDisplay.setMap(this.map);
         directionsDisplay.setPanel(this.directionsPanel.nativeElement);
 
         directionsService.route({
-            origin: 'adelaide',
-            destination: 'adelaide oval',
-            travelMode: google.maps.TravelMode['DRIVING']
+            origin:  {lat: -7.8876717, lng: -79.2211828},
+            destination:  {lat: -7.8917998, lng: -79.2251388},
+            provideRouteAlternatives: false,
+             travelMode: 'DRIVING',
+             drivingOptions: {
+               departureTime: new Date(/* now, or future date */),
+               trafficModel: 'pessimistic'
+             },
+             unitSystem: google.maps.UnitSystem.IMPERIAL,
+            
         }, (res, status) => {
-
+            console.log(res);
             if(status == google.maps.DirectionsStatus.OK){
-                directionsDisplay.setDirections(res);
+                directionsDisplay.setDirections(res)
             } else {
                 console.warn(status);
             }
