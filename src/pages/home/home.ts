@@ -13,7 +13,9 @@ export class HomePage {
   @ViewChild('map') mapElement: ElementRef;
   @ViewChild('directionsPanel') directionsPanel: ElementRef;
    map: any;
-
+   bounds: any = null;
+   myLatLng: any;
+   waypoints: any[];
   constructor(public navCtrl: NavController, public geolocation: Geolocation) {
 
   }
@@ -71,7 +73,6 @@ export class HomePage {
 
         let directionsService = new google.maps.DirectionsService; //RUTAS
         let directionsDisplay = new google.maps.DirectionsRenderer; // RENDERIZAR RUTAS
-
         directionsDisplay.setMap(this.map);
         directionsDisplay.setPanel(this.directionsPanel.nativeElement);
 
@@ -79,15 +80,27 @@ export class HomePage {
             origin:  {lat: -7.8876717, lng: -79.2211828},
             destination:  {lat: -7.8917998, lng: -79.2251388},
             provideRouteAlternatives: false,
-             travelMode: 'DRIVING',
+            waypoints: this.waypoints,
+            optimizeWaypoints: true,
+            travelMode: google.maps.TravelMode.DRIVING,
+            avoidTolls: true,
              drivingOptions: {
                departureTime: new Date(/* now, or future date */),
                trafficModel: 'pessimistic'
              },
-             unitSystem: google.maps.UnitSystem.IMPERIAL,
-            
+
         }, (res, status) => {
             console.log(res);
+            let array=[];
+            for (let i = 0; i < res.routes[0].overview_path.length; i++) {
+                array.push({
+                  location: { lat: res.routes[0].overview_path[i].lat(), lng: res.routes[0].overview_path[i].lng() },
+                  stopover: true,
+                });
+                this.waypoints=array;
+                //console.log(res.routes[0].overview_path[i].lat(),res.routes[0].overview_path[i].lng());
+            }
+            //console.log(this.waypoints);
             if(status == google.maps.DirectionsStatus.OK){
                 directionsDisplay.setDirections(res)
             } else {
