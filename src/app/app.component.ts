@@ -4,12 +4,12 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 //import { HomePage } from '../pages/home/home';
-import { ArduinoPage } from '../pages/arduino/arduino';
+import { AgPage } from '../pages/ag/ag';
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
-  rootPage:any = ArduinoPage;
+  rootPage:any = AgPage;
 
   constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen) {
     platform.ready().then(() => {

@@ -7,6 +7,7 @@ import { Geolocation } from '@ionic-native/geolocation';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { ArduinoPage } from '../pages/arduino/arduino';
+import { AgPage } from '../pages/ag/ag';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { BluetoothProvider } from '../providers/bluetooth/bluetooth';
 
@@ -15,6 +16,7 @@ import { BluetoothProvider } from '../providers/bluetooth/bluetooth';
     MyApp,
     HomePage,
     ArduinoPage,
+    AgPage
   ],
   imports: [
     BrowserModule,
@@ -25,6 +27,7 @@ import { BluetoothProvider } from '../providers/bluetooth/bluetooth';
     MyApp,
     HomePage,
     ArduinoPage,
+    AgPage 
   ],
   providers: [
     StatusBar,
