@@ -6,11 +6,15 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { Geolocation } from '@ionic-native/geolocation';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { ArduinoPage } from '../pages/arduino/arduino';
+import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
+import { BluetoothProvider } from '../providers/bluetooth/bluetooth';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    ArduinoPage,
   ],
   imports: [
     BrowserModule,
@@ -19,13 +23,16 @@ import { HomePage } from '../pages/home/home';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    ArduinoPage,
   ],
   providers: [
     StatusBar,
     SplashScreen,
     Geolocation,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    BluetoothSerial,
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    BluetoothProvider
   ]
 })
 export class AppModule {}

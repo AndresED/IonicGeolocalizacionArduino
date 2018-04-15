@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
+import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 
 declare var google;
 
@@ -98,7 +99,7 @@ export class HomePage {
                   stopover: true,
                 });
                 this.waypoints=array;
-                //console.log(res.routes[0].overview_path[i].lat(),res.routes[0].overview_path[i].lng());
+                console.log(res.routes[0].overview_path[i].lat(),res.routes[0].overview_path[i].lng());
             }
             //console.log(this.waypoints);
             if(status == google.maps.DirectionsStatus.OK){

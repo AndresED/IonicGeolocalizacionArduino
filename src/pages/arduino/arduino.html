@@ -1,0 +1,44 @@
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>Arduino</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list padding>
+    <h2 *ngIf="deviceSeleccionado!=null">Dispositivo conectado:{{deviceSeleccionado}} - Address {{addressGlobal}}</h2>
+    <button ion-button block (click)="startScanning()">Buscar</button>
+    <ion-list-header>
+      Dispositivos Asociados
+    </ion-list-header>
+    <ion-item *ngFor="let device of pairedDevices">
+      {{device.name}}  - <button ion-button (click)="connectDevice(device.address,device.name)">Conectar</button>  -<button ion-button (click)="sendMessage(device.address,device.name)">Enviar mensaje</button>
+    </ion-item>
+    <button ion-button block *ngIf="connectStatus==true" (click)="disconnect()">Desconectar</button>
+    <ion-list-header>
+      Dispositivos disonibles
+    </ion-list-header>
+    <ion-item *ngFor='let device of unpairedDevices'>
+      <span (click)="selectDevice(device.address)">
+        {{device.name}}
+      </span>
+    </ion-item>
+    <ion-spinner name="crescent" *ngIf="gettingDevices"></ion-spinner>
+  </ion-list>
+<!--  Lista de dispositivos
+  <ul *ngIf="lenDevices!=0">
+    <li *ngFor="let device of devices">{{device}}</li>
+  </ul>
+  <p *ngIf="lenDevices==0">
+    No hay dispositivos
+  </p>
+  <br>
+  <br>
+  <br>
+<button ion-button color="primary" round (click)="sendText('1')">Enviar 1</button>
+<button ion-button color="primary" round (click)="sendText('2')">Enviar 2</button>
+<button ion-button color="primary" round (click)="getList()">Lista</button>-->
+</ion-content>
