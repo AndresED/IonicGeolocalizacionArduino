@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
-import { AlertController } from 'ionic-angular';
+import { AlertController ,ViewController} from 'ionic-angular';
 /**
  * Generated class for the ArduinoPage page.
  *
@@ -21,8 +21,11 @@ export class ArduinoPage {
   addressGlobal:any;
   deviceSeleccionado:any;
   connectStatus:boolean=false;
-  constructor(public navCtrl: NavController, public navParams: NavParams,private bluetoothSerial: BluetoothSerial, private alertCtrl: AlertController) {
+  dataRoute:any=[];
+  constructor(public navCtrl: NavController, public navParams: NavParams,private bluetoothSerial: BluetoothSerial, private alertCtrl: AlertController,public viewCtrl: ViewController) {
      bluetoothSerial.enable();
+     this.dataRoute=navParams.get('dataRoute')
+     //console.log(this.dataRoute);
   }
 
   ionViewDidLoad() {
@@ -110,8 +113,8 @@ export class ArduinoPage {
      if(this.connectStatus==false){
        alert("No estas conectado al dispositivo "+name);
      }else{
-       this.bluetoothSerial.write("1").then(()=>{
-         //alert("Mensaje enviado");
+       this.bluetoothSerial.write(this.dataRoute).then(()=>{
+         alert("Mensaje enviado");
        }, this.fail);
      }
    }
@@ -123,5 +126,18 @@ export class ArduinoPage {
      this.connectStatus=true;
      this.success;
    }, this.fail);
+ }
+ cerrar(){
+
+   let data = {
+     nombre: "Juan Carlos",
+     edad: 18,
+     coords: {
+       lat: 10,
+       lng: -10
+     }
+   };
+   this.viewCtrl.dismiss( data );
+
  }
 }

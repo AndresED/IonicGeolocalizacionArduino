@@ -18,6 +18,8 @@ export class AgPage {
    bounds: any = null;
    myLatLng: any;
    waypoints: any[];
+   isConfigurate:boolean=false;
+   dataRoute:any=[];
   constructor(public navCtrl: NavController, public geolocation: Geolocation,public modalCtrl: ModalController) {
 
   }
@@ -40,21 +42,33 @@ export class AgPage {
       }
 
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-
+      this.addMarker();
     }, (err) => {
       console.log(err);
     });
 
   }
-  addMarker(){
 
+  addMarker(){
+    var latlng = {lat: parseFloat(this.map.getCenter().lat()), lng: parseFloat(this.map.getCenter().lng())};
+    var geocoder = new google.maps.Geocoder;
+    var content;
+    geocoder.geocode({'location': latlng}, function(results, status) {
+        console.log(results[0].formatted_address);
+         if (status === 'OK') {
+            content=results[0].formatted_address;
+           } else {
+             window.alert('No results found');
+           }
+       });
+    console.log("Dirección:"+content);
     let marker = new google.maps.Marker({
       map: this.map,
       animation: google.maps.Animation.DROP,
       position: this.map.getCenter()
     });
 
-    let content = "<h4>Information!</h4>";
+
 
     this.addInfoWindow(marker, content);
 
@@ -92,17 +106,22 @@ export class AgPage {
              },
 
         }, (res, status) => {
-            console.log(res);
             let array=[];
-            for (let i = 0; i < res.routes[0].overview_path.length; i++) {
-                array.push({
-                  location: { lat: res.routes[0].overview_path[i].lat(), lng: res.routes[0].overview_path[i].lng() },
-                  stopover: true,
-                });
-                this.waypoints=array;
-                console.log(res.routes[0].overview_path[i].lat(),res.routes[0].overview_path[i].lng());
+            let data=res.routes[0].legs[0].steps;
+            //console.log(data);
+            //console.log(data.start_point.lat());
+            for (let i = 0; i < data.length; i++) {
+              array.push({
+                distance: data[i].distance ,
+                duration: data[i].duration,
+                instructions:data[i].instructions,
+                maneuver:data[i].maneuver,
+                start_location:{ lat:data[i].start_location.lat(), lng: data[i].start_location.lng() },
+                end_location:{ lat:data[i].end_location.lat(), lng: data[i].end_location.lng() },
+              });
             }
-            //console.log(this.waypoints);
+            this.dataRoute=array;
+            //console.log(this.dataRoute)
             if(status == google.maps.DirectionsStatus.OK){
                 directionsDisplay.setDirections(res)
             } else {
@@ -114,7 +133,7 @@ export class AgPage {
     }
 
     showModal(){
-      let modal = this.modalCtrl.create(ArduinoPage);
+      let modal = this.modalCtrl.create(ArduinoPage,{ dataRoute: this.dataRoute });
       modal.present();
     }
 }
