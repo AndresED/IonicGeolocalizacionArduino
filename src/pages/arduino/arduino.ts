@@ -21,11 +21,11 @@ export class ArduinoPage {
   addressGlobal:any;
   deviceSeleccionado:any;
   connectStatus:boolean=false;
-  dataRoute:any=[];
+  dataRoute:any={};
   constructor(public navCtrl: NavController, public navParams: NavParams,private bluetoothSerial: BluetoothSerial, private alertCtrl: AlertController,public viewCtrl: ViewController) {
      bluetoothSerial.enable();
      this.dataRoute=navParams.get('dataRoute')
-     //console.log(this.dataRoute);
+     //console.log((this.dataRoute));
   }
 
   ionViewDidLoad() {
@@ -113,7 +113,7 @@ export class ArduinoPage {
      if(this.connectStatus==false){
        alert("No estas conectado al dispositivo "+name);
      }else{
-       this.bluetoothSerial.write(this.dataRoute).then(()=>{
+       this.bluetoothSerial.write(JSON.stringify(this.dataRoute)).then(()=>{
          alert("Mensaje enviado");
        }, this.fail);
      }

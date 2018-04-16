@@ -19,7 +19,7 @@ export class AgPage {
    myLatLng: any;
    waypoints: any[];
    isConfigurate:boolean=false;
-   dataRoute:any=[];
+   dataRoute:any={};
   constructor(public navCtrl: NavController, public geolocation: Geolocation,public modalCtrl: ModalController) {
 
   }
@@ -114,7 +114,7 @@ export class AgPage {
               array.push({
                 distance: data[i].distance ,
                 duration: data[i].duration,
-                instructions:data[i].instructions,
+                //instructions:data[i].instructions,
                 maneuver:data[i].maneuver,
                 start_location:{ lat:data[i].start_location.lat(), lng: data[i].start_location.lng() },
                 end_location:{ lat:data[i].end_location.lat(), lng: data[i].end_location.lng() },
