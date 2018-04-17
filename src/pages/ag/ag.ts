@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
-import { ModalController } from 'ionic-angular';
+import { ModalController,ViewController } from 'ionic-angular';
 import {ArduinoPage} from '../arduino/arduino';
 declare var google;
 
@@ -20,13 +20,15 @@ export class AgPage {
    waypoints: any[];
    isConfigurate:boolean=false;
    dataRoute:any={};
-  constructor(public navCtrl: NavController, public geolocation: Geolocation,public modalCtrl: ModalController) {
-
+   pOrigen:any;
+   pDestino:any;
+   markers:any=[];
+  constructor(public navCtrl: NavController, public geolocation: Geolocation,public modalCtrl: ModalController,public viewController:ViewController) {
+      console.log(this.isConfigurate);
   }
 
   ionViewDidLoad(){
     this.loadMap();
-    this.startNavigating();
   }
 
   loadMap(){
@@ -34,7 +36,8 @@ export class AgPage {
     this.geolocation.getCurrentPosition().then((position) => {
 
       let latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
+      this.pOrigen=latLng;
+      console.log(position.coords.latitude, position.coords.longitude);
       let mapOptions = {
         center: latLng,
         zoom: 15,
@@ -42,48 +45,68 @@ export class AgPage {
       }
 
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-      this.addMarker();
+      //SETEANDO AGREGAR MARCADOR
+      google.maps.event.addListener(this.map, 'click', (event) => {
+        this.addMarker(event.latLng.lat(),event.latLng.lng(),"destino");
+      });
+      this.addMarker(position.coords.latitude,position.coords.longitude,"origen");
+
     }, (err) => {
       console.log(err);
     });
 
-  }
 
-  addMarker(){
-    var latlng = {lat: parseFloat(this.map.getCenter().lat()), lng: parseFloat(this.map.getCenter().lng())};
+  }
+  updatePosition(){
+
+  }
+  addMarker(latitude,longitude,type){
+
+    var latlng = {lat: latitude, lng: longitude};
     var geocoder = new google.maps.Geocoder;
     var content;
-    geocoder.geocode({'location': latlng}, function(results, status) {
-        console.log(results[0].formatted_address);
-         if (status === 'OK') {
-            content=results[0].formatted_address;
-           } else {
-             window.alert('No results found');
-           }
-       });
-    console.log("Dirección:"+content);
-    let marker = new google.maps.Marker({
-      map: this.map,
-      animation: google.maps.Animation.DROP,
-      position: this.map.getCenter()
-    });
+    if(this.markers.length<2){
+      let marker = new google.maps.Marker({
+        map: this.map,
+        animation: google.maps.Animation.DROP,
+        position: latlng
+      });
+      this.markers.push(marker);
+      //AGREGANDO EVENTO CLICK PARA ELIMINAR UN MARCADOR
+      google.maps.event.addListener(marker, 'click', (event) => {
+        this.deleteMarker(1);
+      });
 
-
-
-    this.addInfoWindow(marker, content);
-
+      if(type==="origen"){
+        geocoder.geocode({'location': latlng}, (results, status)=> {
+            content="Posición actual: "+results[0].formatted_address;
+            this.addInfoWindow(marker, content);
+        });
+      }else{
+        this.pDestino=latlng;
+        geocoder.geocode({'location': latlng}, (results, status)=> {
+            content="Destino: "+results[0].formatted_address;
+            this.addInfoWindow(marker, content);
+        });
+      }
+    }
   }
 
+  deleteMarker(position){
+      console.log(position);
+      if(position==0){
+        alert("No se puede eliminar la posición de origen")
+      }else{
+          this.markers[position].setMap(null);
+          this.markers.splice(1, 1);
+      }
+  }
   addInfoWindow(marker, content){
 
     let infoWindow = new google.maps.InfoWindow({
       content: content
     });
-
-    google.maps.event.addListener(marker, 'click', () => {
-      infoWindow.open(this.map, marker);
-    });
-
+    infoWindow.open(this.map, marker);
   }
   startNavigating(){
 
@@ -93,8 +116,8 @@ export class AgPage {
         directionsDisplay.setPanel(this.directionsPanel.nativeElement);
 
         directionsService.route({
-            origin:  {lat: -7.8876717, lng: -79.2211828},
-            destination:  {lat: -7.8917998, lng: -79.2251388},
+            origin:  this.pOrigen,
+            destination:  this.pDestino,
             provideRouteAlternatives: false,
             waypoints: this.waypoints,
             optimizeWaypoints: true,
@@ -108,20 +131,16 @@ export class AgPage {
         }, (res, status) => {
             let array=[];
             let data=res.routes[0].legs[0].steps;
-            //console.log(data);
-            //console.log(data.start_point.lat());
             for (let i = 0; i < data.length; i++) {
               array.push({
                 distance: data[i].distance ,
                 duration: data[i].duration,
-                //instructions:data[i].instructions,
                 maneuver:data[i].maneuver,
                 start_location:{ lat:data[i].start_location.lat(), lng: data[i].start_location.lng() },
                 end_location:{ lat:data[i].end_location.lat(), lng: data[i].end_location.lng() },
               });
             }
             this.dataRoute=array;
-            //console.log(this.dataRoute)
             if(status == google.maps.DirectionsStatus.OK){
                 directionsDisplay.setDirections(res)
             } else {
@@ -131,9 +150,17 @@ export class AgPage {
         });
 
     }
-
     showModal(){
-      let modal = this.modalCtrl.create(ArduinoPage,{ dataRoute: this.dataRoute });
-      modal.present();
+      if(this.markers.length>=2){
+        let modal = this.modalCtrl.create(ArduinoPage,{ dataRoute: this.dataRoute });
+        modal.present();
+        modal.onDidDismiss(  data =>{
+          this.isConfigurate=data.isConfigurate;
+          this.startNavigating();
+          console.log(this.isConfigurate);
+        })
+      }else{
+        alert("Es necesario de que fije el destino final antes de enviar las instrucciones");
+      }
     }
 }

@@ -22,7 +22,7 @@
 
 
 <ion-content>
-    <ion-card>
+    <ion-card [ngClass]="{'hidden': isConfigurate==false, 'not-hidden':isConfigurate==true}">
         <ion-card-content>
             <div #directionsPanel></div>
         </ion-card-content>
