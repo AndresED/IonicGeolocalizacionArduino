@@ -17,13 +17,14 @@ export class ArduinoPage {
   dataRoute:any={};
   constructor(public navCtrl: NavController, public navParams: NavParams,private bluetoothSerial: BluetoothSerial, private alertCtrl: AlertController,public viewCtrl: ViewController) {
      bluetoothSerial.enable();
-     this.dataRoute=navParams.get('dataRoute')
+     this.dataRoute=JSON.stringify(navParams.get('dataRoute'))
      //console.log((this.dataRoute));
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad ArduinoPage');
   }
+
   startScanning() {
    this.pairedDevices = null;
    this.unpairedDevices = null;

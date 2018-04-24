@@ -23,8 +23,10 @@ export class AgPage {
    pOrigen:any;
    pDestino:any;
    markers:any=[];
+   statusNavigation:boolean=false;
   constructor(public navCtrl: NavController, public geolocation: Geolocation,public modalCtrl: ModalController,public viewController:ViewController) {
       console.log(this.isConfigurate);
+
   }
 
   ionViewDidLoad(){
@@ -58,10 +60,14 @@ export class AgPage {
 
   }
   updatePosition(){
-
+    this.geolocation.getCurrentPosition().then((position) => {
+      this.markers[0]=new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    }, (err) => {
+      console.log(err);
+    });
   }
   addMarker(latitude,longitude,type){
-
+    console.log("Hola")
     var latlng = {lat: latitude, lng: longitude};
     var geocoder = new google.maps.Geocoder;
     var content;
@@ -89,6 +95,9 @@ export class AgPage {
             this.addInfoWindow(marker, content);
         });
       }
+      if(this.markers.length==2){
+          this.startNavigating();
+      }
     }
   }
 
@@ -99,6 +108,7 @@ export class AgPage {
       }else{
           this.markers[position].setMap(null);
           this.markers.splice(1, 1);
+          this.statusNavigation=false;
       }
   }
   addInfoWindow(marker, content){
@@ -129,6 +139,7 @@ export class AgPage {
              },
 
         }, (res, status) => {
+            this.statusNavigation=true;
             let array=[];
             let data=res.routes[0].legs[0].steps;
             for (let i = 0; i < data.length; i++) {
@@ -150,15 +161,34 @@ export class AgPage {
         });
 
     }
+    getCurrentPosition(){
+      this.geolocation.getCurrentPosition().then((position) => {
+        this.addMarker(position.coords.latitude,position.coords.longitude,"origen");
+      }, (err) => {
+          console.log(err);
+        });
+    }
+    resetMap(){
+      this.setMapOnAll(null);
+      this.statusNavigation=false;
+      this.loadMap()
+      console.log(this.markers)
+    }
+    setMapOnAll(map) {
+        for (var i = 0; i < this.markers.length; i++) {
+          this.markers[i].setMap(map);
+          this.markers.splice(1, i);
+        }
+      }
     showModal(){
       if(this.markers.length>=2){
         let modal = this.modalCtrl.create(ArduinoPage,{ dataRoute: this.dataRoute });
         modal.present();
-        modal.onDidDismiss(  data =>{
+        /*modal.onDidDismiss(  data =>{
           this.isConfigurate=data.isConfigurate;
-          this.startNavigating();
+
           console.log(this.isConfigurate);
-        })
+        })*/
       }else{
         alert("Es necesario de que fije el destino final antes de enviar las instrucciones");
       }
